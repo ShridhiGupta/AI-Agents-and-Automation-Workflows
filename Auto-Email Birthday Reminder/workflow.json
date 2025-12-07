@@ -1,0 +1,178 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1817224c-470d-4a80-9b60-dd60f00b6660",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DZc6NsbGfknmXOSRwfuMY-HIbvgazJt970fkuGbscxk",
+          "mode": "list",
+          "cachedResultName": "Auto-Email Birthday Reminder",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DZc6NsbGfknmXOSRwfuMY-HIbvgazJt970fkuGbscxk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DZc6NsbGfknmXOSRwfuMY-HIbvgazJt970fkuGbscxk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "51e63631-1284-4368-a269-cd78a3e25fc6",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RX0NgapswltJqC0h",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the current date object\nconst today = new Date();\n\n// Format today's month and day into 'MM-DD' format for comparison\n// getMonth() is 0-indexed, so add 1. padStart ensures 2 digits (e.g., '01', '12').\nconst todayMonthDay = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;\nconst currentYear = today.getFullYear();\n\n// Array to hold the items that match today's birthday\nconst birthdayMatches = [];\n\n// Loop through all incoming items from the Google Sheets node\nfor (const item of $input.all()) {\n    const birthdayDateString = item.json.Birthday;\n\n    // Check if the Birthday field exists and is a non-empty string\n    if (birthdayDateString) {\n        // We expect the Birthday format to be 'YYYY-MM-DD'\n\n        // 1. Birthday Match Logic (MM-DD)\n        // Extract only the 'MM-DD' part (characters from index 5 onwards)\n        const itemMonthDay = birthdayDateString.substring(5);\n\n        // Compare the MM-DD parts\n        if (itemMonthDay === todayMonthDay) {\n            \n            // 2. Age Calculation Logic\n            // Extract the birth year (first 4 characters)\n            const birthYear = parseInt(birthdayDateString.substring(0, 4), 10);\n            \n            // Calculate the current age\n            const age = currentYear - birthYear;\n            \n            // 3. Add Age to the Output Item\n            // Create a new item object and merge the calculated age\n            const outputItem = {\n                ...item, // Keep all original fields (row_number, Name, Birthday, Email)\n                json: {\n                    ...item.json,\n                    Age: age // Add the calculated Age field\n                }\n            };\n            \n            // If it's a match, push the modified item to the results array\n            birthdayMatches.push(outputItem);\n        }\n    }\n}\n\n// Return only the items whose birthday is today, now including the Age\nreturn birthdayMatches;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "1fccec28-cbc3-4238-9317-613ec3053038",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=If you had access to the recipient's age, you could make the prompt even more personalized.\n\nPrompt:\n\nGoal: Draft a professional yet heartfelt birthday message suitable for an automated email.\n\nInput Data:\n\nRecipient Name: {{$json.Name}}\n\nRecipient Age (Calculated): {{ $json.Age }}\n\nRelationship: Colleague/Contact\n\nInstructions:\n\nThe message must be formal, but genuine.\n\nReference their current age in a non-intrusive, positive way (e.g., \"Wishing you a wonderful {{ $json.Age }}th year...\").\n\nThe company name is - LifeSense AI\n\nThis is sample email and you can take referrence from it.\n\nDear William Rodriguez (Senior Developer),\n\nThe entire LifeSense-AI team extends the warmest birthday wishes to you today.\n\nAs you celebrate your 48th year, we want to take a moment to express our gratitude for your commitment and hard work. Your contributions are highly valued, and we look forward to achieving more milestones together.\n\nWe hope you take some well-deserved time off today to recharge, celebrate this special occasion with loved ones, and focus solely on yourself.\n\nWishing you a wonderful day and a successful year ahead.\n\nBest regards,\n\nThe LifeSense-AI Team\n\nDon't write subject as the first word.\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "2e20244f-ec8a-46f6-a132-c71fb9886661",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "88XljaGkAq2pXgjv",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json.Email }}",
+        "subject": "=Happie Birthaday {{ $('Code in JavaScript').item.json.Name }}! Warmest Wishes from LifeSense-AI",
+        "message": "={{ $json.content.parts[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        976,
+        0
+      ],
+      "id": "fd96b647-8611-4352-96ae-88253c7d642b",
+      "name": "Send a message",
+      "webhookId": "44319099-aea6-46bf-8293-00bd2763df8e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "afDRBRKzaqor9upo",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33840f6db016a353c1a6ab6cc7e5aa280412868ce87d068b5397432313c1764a"
+  }
+}
