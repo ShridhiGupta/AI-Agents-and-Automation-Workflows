@@ -1,0 +1,509 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "00f4261e-0a69-4bb2-a345-b52c0aef2230",
+      "name": "Daily Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "stockApiBaseUrl",
+              "value": " https://api.coindesk.com/v1/bpi/currentprice.json",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "emailRecipient",
+              "value": "guptashridhi11@gmail.com",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "0c04cd8d-002c-4e9f-8452-3282507e42b2",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        752,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "symbols",
+              "value": "[\"NIFTY50\", \"TCS\", \"INFY\", \"RELIANCE\"]",
+              "type": "array"
+            },
+            {
+              "id": "id-2",
+              "name": "date",
+              "value": "={{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "07da9b21-6d37-484d-897b-b9ae5c2d1850",
+      "name": "Prepare Stock Symbols",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d\n",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "f8bc886a-519c-4098-976e-94d018a6f615",
+      "name": "Fetch NIFTY50 Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://query1.finance.yahoo.com/v8/finance/chart/TCS.NS?interval=1d\n",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "2968cd4d-12a1-4e78-8a9c-65e23499740a",
+      "name": "Fetch TCS Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://query1.finance.yahoo.com/v8/finance/chart/INFY.NS?interval=1d\n",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "5ff8570d-85db-4b1d-b286-d741cf1947bf",
+      "name": "Fetch INFY Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://query1.finance.yahoo.com/v8/finance/chart/RELIANCE.NS?interval=1d\n",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "b132db75-92d3-4e36-b1e2-4d40ec2235a0",
+      "name": "Fetch RELIANCE Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function node: Clean and transform Yahoo Finance responses\n\nconst transformedData = [];\n\nfor (const item of items) {\n  const data = item.json;\n\n  if (!data.chart?.result || data.chart.result.length === 0) {\n    transformedData.push({\n      json: {\n        symbol: \"UNKNOWN\",\n        price: 0,\n        open: 0,\n        high: 0,\n        low: 0,\n        volume: 0,\n        date: new Date().toISOString().slice(0,10),\n        timestamp: new Date().toISOString()\n      }\n    });\n    continue;\n  }\n\n  const result = data.chart.result[0];\n\n  const quote = result.indicators.quote[0];\n  const timestamps = result.timestamp;\n  const lastIndex = timestamps.length - 1;\n\n  const ts = timestamps[lastIndex] * 1000; // convert seconds → ms\n\n  transformedData.push({\n    json: {\n      symbol: result.meta.symbol,\n      price: quote.close[lastIndex],\n      open: quote.open[lastIndex],\n      high: quote.high[lastIndex],\n      low: quote.low[lastIndex],\n      volume: quote.volume[lastIndex],\n      date: new Date(ts).toISOString().slice(0, 10),\n      timestamp: new Date(ts).toISOString()\n    }\n  });\n}\n\nreturn transformedData;\n"
+      },
+      "id": "6facf742-b9e6-4a8b-bae9-ab63118931cf",
+      "name": "Clean and Transform Stock Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/11xZOh89uNUfKpulXGFVuLS6vKv6Nw2IdA0j8RKj7_iY/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "n8n",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "symbol",
+              "displayName": "symbol",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "open",
+              "displayName": "open",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "high",
+              "displayName": "high",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "low",
+              "displayName": "low",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "volume",
+              "displayName": "volume",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "551f25ac-8e81-4a2a-968b-2f5d358d1b03",
+      "name": "Append to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        1024
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ITkFd7snB5CaDo2Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate daily summary from stock data\nconst items = $input.all();\n\nif (items.length === 0) {\n  return [{ json: { summary: 'No stock data available for today.' } }];\n}\n\n// Extract stock data\nconst stocks = items.map(item => item.json);\nconst date = new Date().toISOString().split('T')[0]; // <-- FIXED\nconst totalStocks = stocks.length;\n\n// Calculate key metrics\nlet highestGainer = null;\nlet highestGainerChange = -Infinity;\nlet highestLoser = null;\nlet highestLoserChange = Infinity;\n\nstocks.forEach(stock => {\n  const change = stock.change || stock.changePercent || 0;\n  \n  if (change > highestGainerChange) {\n    highestGainerChange = change;\n    highestGainer = stock;\n  }\n  \n  if (change < highestLoserChange) {\n    highestLoserChange = change;\n    highestLoser = stock;\n  }\n});\n\n// Generate summary text\nconst summary = `🟢 Daily Stock Summary — ${date}\n\n📌 Total Stocks Processed: ${totalStocks}\n\n📈 Highest Gainer: ${highestGainer?.symbol || 'N/A'} (${highestGainerChange > 0 ? '+' : ''}${highestGainerChange.toFixed(2)}%)\n📉 Highest Loser: ${highestLoser?.symbol || 'N/A'} (${highestLoserChange.toFixed(2)}%)\n\n📊 All Stocks:\n${stocks.map(s => `• ${s.symbol || 'Unknown'}: ₹${s.price || 'N/A'} (${s.change > 0 ? '+' : ''}${s.change?.toFixed(2) || 'N/A'}%)`).join('\\n')}\n`;\n\nreturn [{\n  json: {\n    summary,\n    date,\n    totalStocks,\n    highestGainer,\n    highestLoser,\n    stocks\n  }\n}];\n"
+      },
+      "id": "80111b19-2bae-4d1b-971f-8688c7b1b228",
+      "name": "Generate Daily Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "shreegupta572@gmail.com",
+        "toEmail": "=guptashridhi11@gmail.com",
+        "subject": "=Daily Stock Report - {{ $now.format('yyyy-MM-dd') }}",
+        "emailFormat": "text",
+        "text": "={{ $json.summary }}",
+        "options": {}
+      },
+      "id": "77e96acd-fd9d-4da2-8d03-6c0140c5942a",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2304,
+        1024
+      ],
+      "webhookId": "26b3ba41-ffa2-48eb-bf1a-286adcd418bc",
+      "credentials": {
+        "smtp": {
+          "id": "Cti6gp5YrN6OCxca",
+          "name": "SMTP account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1472,
+        848
+      ],
+      "id": "2f93a586-7dce-4039-af67-e8ee6c226977",
+      "name": "Merge"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1488,
+        1248
+      ],
+      "id": "10621cd9-3aad-40e7-807d-3ba1d1c86d5c",
+      "name": "Merge1"
+    }
+  ],
+  "connections": {
+    "Daily Schedule": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Prepare Stock Symbols",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Stock Symbols": {
+      "main": [
+        [
+          {
+            "node": "Fetch NIFTY50 Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch TCS Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch INFY Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch RELIANCE Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch NIFTY50 Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch TCS Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch INFY Data": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RELIANCE Data": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Clean and Transform Stock Data": {
+      "main": [
+        [
+          {
+            "node": "Append to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Generate Daily Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Daily Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Email Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Clean and Transform Stock Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Clean and Transform Stock Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33840f6db016a353c1a6ab6cc7e5aa280412868ce87d068b5397432313c1764a"
+  }
+}
