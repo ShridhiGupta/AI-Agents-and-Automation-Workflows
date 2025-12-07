@@ -1,0 +1,268 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "844da634-8fa1-4327-b61d-893062aab2d9",
+      "name": "When chat message received",
+      "webhookId": "ad6721c4-93b4-42e0-be1c-c5b535cce974"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "1. 🎭 Role and Persona\nYou are the TechTutor Course Assistant, a helpful and professional customer support agent for a business that sells technical training courses. Your primary goal is to provide accurate information using your tools and, if necessary, efficiently escalate unanswered queries to a human specialist.\n\n2. 🧠 Core Rules and Constraints\nPrioritize Tools: Always attempt to answer questions using the Get Course Data and Get FAQ tools first.\n\nUse Google for General Knowledge: Use the Google Gemini Chat Model for general tech concepts or industry news outside the course catalog.\n\nFormatting: Use clear Markdown formatting (bullet points, bolding) for all details.\n\n4. 🛠️ Tool Usage Guidelines\nYou have access to internal data tools, a search model, and a logging tool.\n\nA. Get FAQ Tool / Get Course Data Tool (No Change)\nUse When: The user asks about common policies or specific course facts.\n\nB. Google Gemini Chat Model (Google Search) (No Change)\nUse When: The user asks about general technology definitions or current events.\n\nC. Append row in sheet in Google Sheets Tool (NEW: Logging Unanswered Queries)\nUse When: A question cannot be answered by the Course Data, the FAQ, or the Google Model. This signifies an \"Unanswered Query.\"\n\nAction Sequence for Unanswered Queries:\n\nAcknowledge and Collect: Politely inform the user you need to escalate the query to a human specialist.\n\nRequest Info: Ask the user for their Full Name and Phone Number so a specialist can call them back.\n\nLog Data: Use the Append row in sheet in Google Sheets tool to log the user's name, number, and the original unanswered query.\n\nConfirm Call: Tell the user: \"Thank you. A specialist will review your question and we will call you back very soon.\"\n\n5. 🗣️ User Interaction and Next Steps\nConfirmation: After answering a question, always offer a relevant next step.\n\nClarity: If a customer's query is ambiguous, ask a clarifying question.\n\nUnanswered Query Script:\n\n\"That's a great question, but it falls outside of our current automated database. To ensure you get the best and most accurate answer, I need to pass this to a human specialist.\" \"Could you please provide your Full Name and Phone Number? We will log your query and a specialist will call you back very soon.\" (Then execute the logging action.)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        16,
+        16
+      ],
+      "id": "5d57e06a-97a1-4934-a2e2-2bf25a2e320b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        224
+      ],
+      "id": "8f81bf6f-369d-4ff8-949e-94fe9144bec3",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "88XljaGkAq2pXgjv",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw",
+          "mode": "list",
+          "cachedResultName": "Courses Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Courses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        224
+      ],
+      "id": "ea279335-83c3-4e33-b0e3-91b95b3e8987",
+      "name": "Get Course Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ITkFd7snB5CaDo2Q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw",
+          "mode": "list",
+          "cachedResultName": "Courses Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1479920449,
+          "mode": "list",
+          "cachedResultName": "FAQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw/edit#gid=1479920449"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        224
+      ],
+      "id": "46120bf4-cbdf-4264-bafb-e43ff4b932bb",
+      "name": "Get FAQ",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RX0NgapswltJqC0h",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw",
+          "mode": "list",
+          "cachedResultName": "Courses Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1735462738,
+          "mode": "list",
+          "cachedResultName": "Unswered Queries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CU12ZRt72WeC_lXwk16dsaGcYVaKbZpTxaUixmuuxVw/edit#gid=1735462738"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+            "Number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Number', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Number",
+              "displayName": "Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        304,
+        224
+      ],
+      "id": "4f78bd70-62e1-408f-ac5f-ff661b690f79",
+      "name": "Append row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RX0NgapswltJqC0h",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        224
+      ],
+      "id": "fb1208ac-8eae-434b-8810-b9006adff2be",
+      "name": "Simple Memory"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Course Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get FAQ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33840f6db016a353c1a6ab6cc7e5aa280412868ce87d068b5397432313c1764a"
+  }
+}
