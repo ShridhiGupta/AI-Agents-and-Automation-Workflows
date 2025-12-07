@@ -1,0 +1,477 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Automated Customer Allocation & Email Response System",
+        "formDescription": "Please fill out this form to help us connect you with the right representative.\nAfter submission, your details will be automatically assigned to an available salesperson, and you will receive a confirmation email shortly.\n\n📌 Required fields: Name, Email, Phone, Address, and your Question / Requirement.\n\nThank you for choosing us — our team will get in touch with you as soon as possible!",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Address"
+            },
+            {
+              "fieldLabel": "Question ?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -336,
+        0
+      ],
+      "id": "777f8244-6070-4b45-b7ba-70c9ffaee7cc",
+      "name": "On form submission",
+      "webhookId": "80c83441-f705-47e5-834c-be57ee2494a0"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant. That takes the form input and select the customer - Name, Phone and Email. Assign one customer to the salesperson that is available to take the call and mark that sales-person unavailable. Also, provide the data of the customer in the Customer sheet and maintain a cus_id starting from 'one'. In sales-persons sheet assign them a customer-id so that they can find the detail of that particular customer. Also, mail the customer through his email-id. Also use the FAQ sheet to answer the questions of customers."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        80,
+        0
+      ],
+      "id": "b7012bbe-3bcd-4967-a3af-0f23caa15378",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        192
+      ],
+      "id": "e9c090db-1138-40f5-81cc-2c803fbabe59",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "88XljaGkAq2pXgjv",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json;\n\nreturn {\n  json: {\n    chatInput: `\nName: ${data.Name}\nEmail: ${data.Email}\nPhone: ${data.Phone}\nAddress: ${data.Address}\nQuestion: ${data[\"Question ?\"]}\nSubmitted At: ${data.submittedAt}\nForm Mode: ${data.formMode}\n    `.trim()\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "1326d993-a1b1-4903-af95-41b7a05ad1ae",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU",
+          "mode": "list",
+          "cachedResultName": "Automated Customer Allocation & Email Response System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Salespersons",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": 0,
+            "sales_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('sales_id', ``, 'string') }}",
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', ``, 'string') }}",
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', ``, 'string') }}",
+            "assigned_cus_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('assigned_cus_id', ``, 'string') }}",
+            "status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('status', ``, 'string') }}",
+            "last_assigned_at": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('last_assigned_at', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "status"
+          ],
+          "schema": [
+            {
+              "id": "sales_id",
+              "displayName": "sales_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assigned_cus_id",
+              "displayName": "assigned_cus_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_assigned_at",
+              "displayName": "last_assigned_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        208
+      ],
+      "id": "421526ca-ce9d-4a1e-acfa-c2c9faaab897",
+      "name": "Salespersons",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RX0NgapswltJqC0h",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU",
+          "mode": "list",
+          "cachedResultName": "Automated Customer Allocation & Email Response System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1175861,
+          "mode": "list",
+          "cachedResultName": "Customers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU/edit#gid=1175861"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question / Requirement": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Question___Requirement', ``, 'string') }}",
+            "Email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email', ``, 'string') }}",
+            "Address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Address', ``, 'string') }}",
+            "Assigned Salesperson": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Assigned_Salesperson', ``, 'string') }}",
+            "Submission Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Submission_Date', ``, 'string') }}",
+            "cus_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cus_id', ``, 'string') }}",
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+            "Phone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Phone', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "cus_id",
+              "displayName": "cus_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Question / Requirement",
+              "displayName": "Question / Requirement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned Salesperson",
+              "displayName": "Assigned Salesperson",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submission Date",
+              "displayName": "Submission Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        208
+      ],
+      "id": "081e6b10-3614-42a5-ba58-eddbebc2e246",
+      "name": "Customers",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RX0NgapswltJqC0h",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('On form submission').item.json['Question ?'] }}",
+        "message": "={{ $('Code in JavaScript').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        0
+      ],
+      "id": "e6006238-345a-41e4-9fc1-f1d8ed31a899",
+      "name": "Create a draft",
+      "webhookId": "d53c4145-30ed-4437-bb19-e316fcdc459e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "afDRBRKzaqor9upo",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU",
+          "mode": "list",
+          "cachedResultName": "Automated Customer Allocation & Email Response System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1887153428,
+          "mode": "list",
+          "cachedResultName": "FAQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hK2KIALg7yOVCkSosQoejicv2Yn1ZuprAaCFeIUnDMU/edit#gid=1887153428"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        496,
+        208
+      ],
+      "id": "2329f724-4e18-4f48-a468-51706a92d5cf",
+      "name": "FAQ",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RX0NgapswltJqC0h",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salespersons": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customers": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAQ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33840f6db016a353c1a6ab6cc7e5aa280412868ce87d068b5397432313c1764a"
+  }
+}
