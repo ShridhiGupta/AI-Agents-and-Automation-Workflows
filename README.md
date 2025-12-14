@@ -8,6 +8,7 @@ A collection of automation projects built using n8n and AI tools. These workflow
 - Automated Customer Allocation & Email Response System
 - Automated Daily Stock Data Fetcher & Email Reporter
 - Chatbot for Course Selling Website
+- Core Web Vitals Performance Tracker
 - Mobile Accessories Inventory System
 - Smart Email Auto-Responder
 
