@@ -1,0 +1,204 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4f346ade-be79-4bc0-bb2f-e5b4bcde8fa8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Sg9G7jx4JjGYVCvyTN2FR-rFt6Tr8ocFPA8V23uH8Js",
+          "mode": "list",
+          "cachedResultName": "Email Sending to the IIT professors for Research Internship",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sg9G7jx4JjGYVCvyTN2FR-rFt6Tr8ocFPA8V23uH8Js/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Sg9G7jx4JjGYVCvyTN2FR-rFt6Tr8ocFPA8V23uH8Js/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4b7aaf6b-3869-4070-8642-34f926c71120",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wCJY6A1uAIYZGEw1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const areaOfInterest = item.json[\"Area of Interest\"];\n\n  item.json.chatInput = areaOfInterest;\n}\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "93aa2452-12e2-48ed-af79-0858b9f21cf7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are an AI research email assistant.\n\nYour task is to:\n1. Understand the professor’s research interests provided in {{ $json.chatInput }}\n2. Write a concise, polite, and professional cold email for a research internship.\n3. Align the email content with the professor’s specific research area.\n4. Maintain an academic and respectful tone.\n5. Don't write professor's name\n\nEmail requirements:\n- Address the professor formally (e.g., “Respected Professor”).\n- Briefly introduce the sender as:\n  Shridhi Gupta, B.Tech Computer Science (AI, ML & DL) student.\n- Mention interest in working under the professor’s mentorship.\n- Clearly connect Shridhi’s interests with the professor’s research area.\n- Mention experience in ML, LLMs, automation, or related areas ONLY if relevant to the professor’s interest.\n- Mention that the resume is attached AND also shared via Google Drive.\n- Do not exaggerate or fabricate publications.\n- Keep the email within 180–220 words.\n\nAlways include this resume line near the end:\n“I have attached my resume for your reference and also shared a Google Drive link below.”\n\nUse this Drive link exactly:\nhttps://drive.google.com/your-resume-link-here\n\nEnd the email with:\nSincerely,\nShridhi Gupta\nEmail: guptashridhi11@gmail.com\nGitHub: https://github.com/ShridhiGupta\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b11a7328-7afc-44ee-b646-3f4b0bd755a1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        496,
+        208
+      ],
+      "id": "51ec42ec-f98c-4f17-b4cb-6044fbc884ce",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "udKBKZjXIx2EMPdk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.Email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.htmlBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "45b1a9f1-8d40-4ab8-bb4b-70ec7b4e6eae",
+      "name": "Send a message",
+      "webhookId": "c4cf9f5a-cbbe-444b-be42-ffa0cd528846",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pe8MCJx7027QsUNw",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  let raw = item.json.output || \"\";\n\n  // 1. Extract subject\n  const subjectMatch = raw.match(/^Subject:\\s*(.*)/mi);\n  const subject = subjectMatch\n    ? subjectMatch[1].trim()\n    : \"Research Internship Interest – B.Tech CS (AI, ML & DL) Student\";\n\n  // 2. Remove subject from body\n  let body = raw.replace(/^Subject:.*(\\r?\\n)?/mi, \"\").trim();\n\n  // 3. Remove markdown\n  body = body.replace(/\\*\\*/g, \"\");\n\n  // 4. Remove existing closing sentence(s)\n  body = body.replace(\n    /I look forward to (the )?possibility of discussing (this|it) further\\.?/gi,\n    \"\"\n  ).trim();\n\n  // 5. Remove any existing signature block\n  body = body.replace(\n    /(Sincerely,|Regards,|Best regards,)[\\s\\S]*$/i,\n    \"\"\n  ).trim();\n\n  // 6. Split into clean paragraphs\n  const paragraphs = body\n    .split(/\\n{2,}|(?<=\\.)\\s+(?=[A-Z])/)\n    .map(p => p.trim())\n    .filter(Boolean);\n\n  // 7. Convert to HTML\n  let htmlBody = paragraphs\n    .map(p => `<p>${p}</p>`)\n    .join(\"\");\n\n  // 8. Convert links to clickable HTML\n  htmlBody = htmlBody.replace(\n    /(https?:\\/\\/[^\\s<]+)/g,\n    `<a href=\"$1\">$1</a>`\n  );\n\n  // 9. Append ONE clean closing + signature\n  htmlBody += `\n    <p>I look forward to the possibility of discussing this further.</p>\n\n    <p>Sincerely,</p>\n\n    <p>\n      <strong>Shridhi Gupta</strong><br>\n      Email: <a href=\"mailto:guptashridhi11@gmail.com\">guptashridhi11@gmail.com</a><br>\n      GitHub: <a href=\"https://github.com/ShridhiGupta\">https://github.com/ShridhiGupta</a>\n    </p>\n  `;\n\n  return {\n    json: {\n      subject,\n      htmlBody\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        0
+      ],
+      "id": "d6c4c666-bb84-4dd2-9428-4358fa2821e7",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "475474a8f8c11c4279e72a1cb03e26b6da7e9adbf71ca753a136e5e1caf0131d"
+  }
+}
