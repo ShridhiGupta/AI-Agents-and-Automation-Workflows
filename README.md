@@ -10,7 +10,7 @@ A collection of automation projects built using n8n and AI tools. These workflow
 - Chatbot for Course Selling Website
 - Mobile Accessories Inventory System
 - Smart Email Auto-Responder
-- Email Sending to the IIT professors for Research Internship
+- Email sending to the IIT professors for Research Internship
   
 ## Usage
 1. Clone the repo  
@@ -18,4 +18,5 @@ A collection of automation projects built using n8n and AI tools. These workflow
 3. Add your API keys  
 4. Run and automate
 
-## Enjoy the Workflow
+### Enjoy the Workflow
+### Be free from the manual work
