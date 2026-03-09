@@ -17,3 +17,5 @@ A collection of automation projects built using n8n and AI tools. These workflow
 2. Import workflows into n8n  
 3. Add your API keys  
 4. Run and automate
+
+## Enjoy the Workflow
