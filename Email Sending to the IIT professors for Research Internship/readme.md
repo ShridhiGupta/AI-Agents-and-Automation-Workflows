@@ -25,14 +25,14 @@ Ideal for students or researchers looking to:
 - Automate cold academic emails professionally
 - Scale personalized outreach without manual effort
 
-## 📄 Output
+## Output
 Each email includes:
 - Custom subject line
 - Research-aligned content
 - Resume attachment + Google Drive link
 - Professional academic formatting
 
-## 👩‍💻 Author
+## Author
 **Shridhi Gupta**  
 Email: guptashridhi11@gmail.com  
 GitHub: https://github.com/ShridhiGupta
