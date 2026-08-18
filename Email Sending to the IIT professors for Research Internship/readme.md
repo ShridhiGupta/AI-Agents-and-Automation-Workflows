@@ -4,7 +4,7 @@ This project automates personalized research internship outreach emails to profe
 
 The workflow reads professors’ research interests from a Google Sheet, generates customized academic emails using AI, formats them professionally, and sends them via Gmail — all automatically.
 
-## 🚀 Features
+## Features
 - Reads professor data from Google Sheets  
 - Understands research interests using an AI Agent  
 - Generates personalized research internship emails  
@@ -12,14 +12,14 @@ The workflow reads professors’ research interests from a Google Sheet, generat
 - Automatically sends emails via Gmail  
 - Scalable for bulk outreach  
 
-## 🛠️ Tech Stack
+## Tech Stack
 - **n8n** (Workflow automation)
 - **JavaScript** (Data processing & formatting)
 - **LLM / AI Agent** (Email generation)
 - **Google Sheets API**
 - **Gmail API**
 
-## 📌 Use Case
+## Use Case
 Ideal for students or researchers looking to:
 - Reach out to professors for research internships
 - Automate cold academic emails professionally
