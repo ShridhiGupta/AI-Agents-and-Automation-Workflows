@@ -31,8 +31,3 @@ Each email includes:
 - Research-aligned content
 - Resume attachment + Google Drive link
 - Professional academic formatting
-
-## Author
-**Shridhi Gupta**  
-Email: guptashridhi11@gmail.com  
-GitHub: https://github.com/ShridhiGupta
