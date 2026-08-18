@@ -1,4 +1,4 @@
-# 📧 Smart Email Auto-Responder
+# Smart Email Auto-Responder
 
 An AI-powered workflow that automatically classifies incoming emails and generates context-aware draft responses using the Google Gemini Chat Model.
 
