@@ -17,3 +17,4 @@ An AI-powered workflow that automatically classifies incoming emails and generat
 
 ## Setup
 Import workflow → Connect **Gmail Trigger** credentials → Connect **Google Gemini Chat Model** credentials → Configure Text Classifier labels and routing → Activate.
+
