@@ -20,5 +20,3 @@ A collection of automation projects built using n8n and AI tools. These workflow
 4. Run and automate
 
 #### Enjoy the Workflow
-
-### Be free from the manual work
